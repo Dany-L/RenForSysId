@@ -1,0 +1,36 @@
+% Copyright 2017 by Christian Senger <senger@inue.uni-stuttgart.de>
+%
+% This file may be distributed and/or modified
+%
+% 1. under the LaTeX Project Public License and/or
+% 2. under the GNU Public License.
+%
+% See the file doc/licenses/LICENSE for more details.
+
+\mode<presentation>
+
+\setbeamercolor{title in head/foot}{parent=palette footnote}
+\setbeamercolor{framenumber in head/foot}{parent=palette footnote}
+
+\usesectionheadtemplate
+  {\hfill\insertsectionhead}
+  {\hfill\color{fg!50!bg}\insertsectionhead}
+
+\defbeamertemplate*{footline}{altsplit theme}
+{%
+  \leavevmode%
+  \hbox{\begin{beamercolorbox}[wd=.3\paperwidth,ht=1ex,dp=1.125ex,leftskip=2ex, rightskip=10ex]{title in head/foot}%
+    \usebeamerfont{title in head/foot}\href{https://www.ipvs.uni-stuttgart.de/departments/ac/}{\insertshortauthor} Topic: \insertshorttitle
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.4\paperwidth,ht=1ex,dp=1.125ex, center]{title in head/foot}
+    \usebeamerfont{title in head/foot}\insertdate
+  \end{beamercolorbox}
+  \begin{beamercolorbox}[wd=.3\paperwidth,ht=1ex,dp=1.125ex,leftskip=2ex,rightskip=2ex]{framenumber in head/foot}%
+    \usebeamerfont{title in head/foot}\hfill\insertframenumber / \ref{finalslide}
+  \end{beamercolorbox}
+  }%
+  \vskip0pt%
+}
+
+\mode
+<all>

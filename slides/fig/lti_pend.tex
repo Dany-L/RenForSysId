@@ -1,0 +1,20 @@
+\begin{tikzpicture}[node distance = 0.25cm and 0.7cm, auto, align=center]
+    % blocks
+    \node[] (output) {};
+    \node[block, right= of output] (G) {$\begin{array}{ll}x^{k+1} & = Ax^k + B_1 u^k+B_2w^k \\ \hat{y}^k & = C_1x^k\\ z^k & = C_2x^k \end{array}$};
+    \node[right= of G] (input) {};
+    \node[block, above= of G] (delta) {$w^k = \Delta(z^k)$};    
+    % Input and outputs coordinates
+    \coordinate[] (outputz)  at ($(G.south west)!0.75!(G.north west)$);
+    \coordinate[] (outputy)  at ($(G.south west)!0.25!(G.north west)$);
+    \coordinate[] (inputw) at ($(G.south east)!0.75!(G.north east)$);
+    \coordinate[] (inputu) at ($(G.south east)!0.25!(G.north east)$);
+
+    % lines
+    \draw[<-] (inputu) --  node[above right ] {$u^k$} ++(1,0);
+    \draw[->] (outputz)node[above left]{$z^k$}  -- ++(-0.5,0) |-   (delta.west) ;
+    \draw[->] (outputy)  -- node[above left] {$\hat{y}^k$} ++(-1,0);
+    \draw[->] (delta.east)  -- ++(2,0) |- node[above right] {$w^k$}(inputw) ;
+
+
+\end{tikzpicture}

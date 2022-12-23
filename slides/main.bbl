@@ -1,0 +1,40 @@
+\begin{thebibliography}{}
+
+\bibitem[Bai et~al., 2019]{bai2019deep}
+Bai, S., Kolter, J.~Z., and Koltun, V. (2019).
+\newblock Deep equilibrium models.
+\newblock In Wallach, H.~M., Larochelle, H., Beygelzimer, A.,
+  d'Alch{\'{e}}{-}Buc, F., Fox, E.~B., and Garnett, R., editors, {\em Advances
+  in Neural Information Processing Systems 32: Annual Conference on Neural
+  Information Processing Systems 2019, NeurIPS 2019, December 8-14, 2019,
+  Vancouver, BC, Canada}, pages 688--699.
+
+\bibitem[Goodfellow et~al., 2016]{goodfellow2016deep}
+Goodfellow, I., Bengio, Y., and Courville, A. (2016).
+\newblock {\em Deep learning}.
+\newblock MIT press.
+
+\bibitem[Lunze and Lunze, 1996]{lunze1996regelungstechnik}
+Lunze, J. and Lunze, J. (1996).
+\newblock {\em Regelungstechnik 1}, volume~10.
+\newblock Springer.
+
+\bibitem[Revay et~al., 2021]{revay2021recurrent}
+Revay, M., Wang, R., and Manchester, I.~R. (2021).
+\newblock Recurrent equilibrium networks: Unconstrained learning of stable and
+  robust dynamical models.
+\newblock In {\em 2021 60th IEEE Conference on Decision and Control (CDC)},
+  pages 2282--2287. IEEE.
+
+\bibitem[Willems, 1972]{willems1972dissipative}
+Willems, J.~C. (1972).
+\newblock Dissipative dynamical systems part i: General theory.
+\newblock {\em Archive for rational mechanics and analysis}, 45(5):321--351.
+
+\bibitem[Winston and Kolter, 2020]{winston2020monotone}
+Winston, E. and Kolter, J.~Z. (2020).
+\newblock Monotone operator equilibrium networks.
+\newblock {\em Advances in neural information processing systems},
+  33:10718--10728.
+
+\end{thebibliography}

@@ -1,0 +1,450 @@
+\documentclass[8pt, t,
+aspectratio=169,% for widescreen (16:9) presentations
+%aspectratio=43,% for traditional (4:3) presentations
+]{beamer}
+\graphicspath{{fig/}}
+
+%handout%
+\usepackage{comment}
+\usepackage{bm}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% mode options %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\mode<presentation>{\usetheme{uniS}}
+
+% define a few pictures used throughout the slides
+\pgfdeclareimage[height=1.1\paperheight]{background}{./design/bg.jpg}  % background picture for title slide
+\pgfdeclareimage[height=1cm]{unilogo}{./design/unistuttgart_ipvs_ac_english_black.pdf} % UniS logo for title slide
+\pgfdeclareimage[height=1cm]{unilogow}{./design/unistuttgart_english_white.pdf} % (white) UniS logo for final slide
+\pgfdeclareimage[width=2.5cm]{speaker}{./design/speaker.jpeg} % speaker photo for final slide
+\pgfdeclareimage[width=1.25cm]{institutelogo}{./design/ac_logo_blue.pdf}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% misc stuff %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{multicol}
+% automatically display \sectionpage at beginning of every \section{}
+\AtBeginSection[]{%
+\begin{frame}[plain]
+  \sectionpage
+\end{frame}
+
+% TODO style needs to be adopted to the subsection slide in PowerPoint
+% \AtBeginSubsection[]{
+%   \begin{frame}[plain]
+%     \subsectionpage    
+%   \end{frame}
+% }
+
+% % Dont know what this is good for
+% % uncomment block in order to display toc after every sectionpage
+
+% \begin{frame}[c, plain]
+%  \begin{footnotesize}
+%     \begin{center}
+%      \begin{minipage}{.75\textwidth}
+%         \begin{multicols}{2}
+%          \tableofcontents[currentsection]
+%         \end{multicols}
+%      \end{minipage}
+%     \end{center}
+%  \end{footnotesize}
+% \end{frame}
+}
+\usetikzlibrary{matrix,shapes,arrows,positioning,chains,patterns,fit,decorations.pathreplacing,calc,plotmarks}
+\input{tikz.tex}
+
+\newcommand{\matr}[1]{\bm{#1}} % matrix
+\newcommand{\vect}[1]{\bm{#1}} % vector
+\newcommand{\deriv}[1]{\dot{\vect{#1}}} % derivative of vector (dot-notation)
+\newcommand{\force}[1]{\vect{\tau}_{\text{#1}}} % force vector
+\newcommand{\rb}[0]{\mathit{RB}} % rigid-body abbreviation
+\newcommand{\abs}[1]{\lvert #1 \rvert} % abs(x)
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% setup %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title[DEQ]{ML in the Science \\ Deep Equilibrium Models}
+% \subtitle{Hauptseminar Winterterm 2021}
+\author[]{Daniel Frank}
+\institute[Analytic Computing]{Institute for Parallel and Distributed Systems}
+\date{\today}
+%\institute[IPVS]{\inst{1}Institute for Parallel and Distributed Systems\and\inst{2}Analytic Computing}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% slides %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% ------------------------------------------------------------------------------
+% Listings
+
+% In the following we make listings look like algorithms.
+% See: https://tex.stackexchange.com/a/73396/75225
+\definecolor{acGray}{HTML}{3E444C}
+\colorlet{acComment}{acGray!75}
+\lstset{
+    frame=tb,
+    basicstyle=\ttfamily,
+    mathescape,
+    showstringspaces=false,
+    commentstyle=\color{acComment},
+    numberstyle=\footnotesize\color{acComment},
+    aboveskip=0.4cm,
+    belowskip=0.2cm}
+
+\lstdefinestyle{numbered}{
+    numbers=left,
+    numbersep=4pt,
+    xleftmargin=16.5pt,
+    framexleftmargin=16.5pt}
+
+\DeclareCaptionFormat{lstlisting}{\hrule\vspace{2pt}#1#2#3}
+\captionsetup[lstlisting]{format=lstlisting, singlelinecheck=off}
+
+% ------------------------------------------------------------------------------
+
+\begin{document}
+
+% helpful for blockdiagrams
+\tikzstyle{block} = [draw, rectangle, rounded corners, minimum height=2em, minimum width=2em]
+\tikzstyle{sum} = [draw, circle]
+\tikzstyle{input} = [coordinate]
+\tikzstyle{output} = [coordinate]
+\tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
+\tikzstyle{rect_grey} = [rectangle, fill=black!20, rounded corners=5pt, minimum width = 8cm, minimum height = 1cm]
+\tikzstyle{rect_grey_small} = [rectangle, fill=black!10, rounded corners=5pt, minimum width = 4cm, minimum height = 4cm]
+% boxes used for topics
+\tikzstyle{rect_grey_topic} = [rectangle, fill=black!20, rounded corners=5pt, minimum width = 2cm, minimum height = 1.5cm, align=center]
+\tikzstyle{rect_white_topic} = [rectangle, draw, rounded corners=5pt, minimum width = 2cm, minimum height = 1.5cm]
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+% TODO fix table of content, could be a problem with enumerate
+% \begin{frame}{Outline}
+%   \tableofcontents
+% \end{frame}
+
+
+\section{Motivation}
+\begin{frame}{Equilibrium Networks in Deep Learning}
+    \framesubtitle{Where do they come from?}
+    \begin{columns}[T]
+        \column{0.33\textwidth}
+            \begin{figure}
+                \includegraphics[width=\textwidth]{deq.png}
+                \caption{From NeurIPS 2019, \emph{about 400 citations} \cite{bai2019deep}}
+            \end{figure}
+            \pause
+        \column{0.33\textwidth}
+            \begin{figure}
+                \includegraphics[width=\textwidth]{mon_deq.png}
+                \caption{From NeurIPS 2020, \emph{about 70 citations} \cite{winston2020monotone}}
+            \end{figure}
+            \pause
+        \column{0.33\textwidth}
+            \begin{figure}
+                \includegraphics[width=\textwidth]{ren.png}
+                \caption{From CDC 2021, \emph{8 citations} \cite{revay2021recurrent} }
+            \end{figure}
+    \end{columns}
+    \pause
+    \begin{block}{Connection between recurrent neural networks and linear time-invariant (LTI) systems}
+        \begin{itemize}
+            \item Recurrent neural networks are a special case of LTI systems with nonlinear disturbance
+            \item Equilibrium networks further generalize the network structure
+            \item Robustness analysis known from robust control can be applied to such systems
+        \end{itemize}
+        
+    \end{block}
+\end{frame}
+
+\subsection{Running Example}
+\begin{frame}{Inverted pendulum with torque input}
+    \framesubtitle{Classical toy example in control}
+    \begin{columns}[]
+        \column{0.6\textwidth}      
+        \textbf{Difference equation of pendulum dynamics}
+        \begin{align}
+            \mathcal{G} &\left\{ \begin{aligned} 
+                x^{k+1} & = 
+                \begin{pmatrix}
+                    1 & \delta \\
+                    \frac{g \delta}{l} & 1 - \frac{\mu \delta}{m l^2}
+                \end{pmatrix}
+                x^k + 
+                \begin{pmatrix}
+                    0 \\
+                    -\frac{g\delta}{l}
+                \end{pmatrix}
+                u^k +
+                \begin{pmatrix}
+                    0 \\
+                    \frac{\delta}{ml^2}
+                \end{pmatrix}
+                w^k \\
+                y^k & = 
+                \begin{pmatrix}
+                    1 & 0
+                \end{pmatrix} x^k \\
+                z^k & = 
+                \begin{pmatrix}
+                    1 & 0
+                \end{pmatrix}
+                x^k
+            \end{aligned} \right.\label{eq:linear_inv_pend}\\
+            w^k &  = \Delta(z^k) = z^k - \sin(z^k) \label{eq:nonlinear_inv_pend}
+        \end{align}
+        \begin{itemize}
+            \item The states $x^k = [\phi, ~ \dot{\phi}]^{\mathrm{T}}$ represents the \emph{angle} and \emph{angular velocity}, friction is denoted by $\mu$ and sample time by $\delta = 0.01$
+            \item Input $u^k$ represents a torque
+            \item Output $y^k$ is the \emph{angle} $\phi$
+            \item One stable and one unstable equilibrium point         
+        \end{itemize}
+        \begin{onlyenv}<2>
+            \begin{block}{}
+                Linearized system can be used to design a controller that stabilizes the unstable equilibrium point
+            \end{block}
+        \end{onlyenv}
+
+        % \begin{figure}
+        %     \input{fig/lti.tex}
+        %     \caption{LTI system in feedback interconnection with nonlinearity}
+        % \end{figure}
+        \column{0.4\textwidth}
+        \vspace{-0.7cm}
+        \begin{onlyenv}<1>
+            \movie[autostart]{\includegraphics[width=\textwidth]{inv_pendulum_poster.png}}{./fig/inv_pendulum.mov}    
+        \end{onlyenv}
+        \begin{onlyenv}<2>
+            \movie[autostart]{\includegraphics[width=\textwidth]{inv_pendulum_controlled_poster.png}}{./fig/inv_pendulum_controlled.mov}  
+        \end{onlyenv}
+        
+        \vspace{-0.7cm}
+        \begin{figure}
+            \input{fig/pendulum.tex}
+            \caption{Parameters of single pendulum.}
+        \end{figure}
+    \end{columns}
+
+\end{frame}
+
+
+\section{Background}
+
+\subsection{Recurrent Neural Networks as LTI systems}
+\begin{frame}{Generalization of Recurrent Neural Networks}
+    \framesubtitle{LTI system with nonlinear disturbance}
+    \vspace{-0.5cm}
+    \begin{columns}
+        \column{0.5\textwidth}
+        \begin{onlyenv}<1->
+            \begin{figure}
+                \centering
+                \input{fig/rnn.tex}
+                \caption{Recurrent neural network from \cite{goodfellow2016deep}}
+                \label{fig:rnn}
+            \end{figure}
+        \end{onlyenv}
+    
+        \column{0.5\textwidth}
+        \begin{onlyenv}<2->
+            \begin{figure}
+                \centering
+                \input{fig/rnn_ctr.tex}
+                \caption{Using common notation from system theory.}
+                \label{fig:rnn_intermediate}
+            \end{figure}
+        \end{onlyenv}
+    \end{columns}
+
+    \begin{onlyenv}<3->
+        \begin{figure}
+            \centering
+            \input{fig/lti.tex}
+            \caption{LTI with non-linear disturbance.}
+            \label{fig:lti}
+        \end{figure}  
+        \vspace{-0.3cm}  
+        \vfill
+        \begin{onlyenv}<4>
+            \begin{block}{}
+                \begin{itemize}
+                    \item For $A=B_1=C_1=D_{11} = 0$, $B_2 = I$, $\Delta(\cdot) = \tanh(\cdot)$ and $h^{t-1} = x^k$ the networks in Figure~\ref{fig:rnn} and Figure~\ref{fig:lti} are equivalent
+                \end{itemize}
+            \end{block}
+        \end{onlyenv}
+
+    \end{onlyenv}
+\end{frame}
+
+\begin{frame}{Pendulum is also in LTI structure}
+    \framesubtitle{Same representation as RNNs}
+    \vspace{-0.2cm}
+    \begin{columns}[T]
+        \column{0.6\textwidth}      
+        \textbf{Difference equation of pendulum dynamics}
+        \begin{align*}
+            \mathcal{G} &\left\{ \begin{aligned} 
+                x^{k+1} & = 
+                \underbrace{\begin{pmatrix}
+                    1 & \delta \\
+                    \frac{g \delta}{l} & 1 - \frac{\mu \delta}{m l^2}
+                \end{pmatrix}}_A
+                x^k + 
+                \underbrace{\begin{pmatrix}
+                    0 \\
+                    -\frac{g\delta}{l}
+                \end{pmatrix}}_{B_1}
+                u^k +
+                \underbrace{\begin{pmatrix}
+                    0 \\
+                    \frac{\delta}{ml^2}
+                \end{pmatrix}}_{B_2}
+                w^k \\
+                y^k & = 
+                \underbrace{\begin{pmatrix}
+                    1 & 0
+                \end{pmatrix}}_{C_1} x^k \\
+                z^k & = 
+                \underbrace{\begin{pmatrix}
+                    1 & 0
+                \end{pmatrix}}_{C_2}
+                x^k
+            \end{aligned} \right.\\
+            w^k &  = \Delta(z^k) = z^k - \sin(z^k)
+        \end{align*}
+        \column{0.4\textwidth}
+        \begin{figure}
+            \input{fig/pendulum.tex}
+            \caption{Parameters of single pendulum.}
+        \end{figure}
+    \end{columns}
+    \begin{figure}
+        \input{fig/lti_pend.tex}
+        \caption{Pendulum dynamics in LTI structure with nonlinearity $\Delta(\cdot)$}
+    \end{figure}
+    
+\end{frame}
+
+\begin{frame}{Why is this connection interesting?}
+    \begin{columns}
+        \column{0.7\textwidth}
+        \textbf{Linear systems are well understood}
+        \begin{itemize}
+            \item Stability depends on eigenvalues of $A$ matrix
+            \item Well established controller design techniques
+        \end{itemize}
+
+        \column{0.3\textwidth}
+        \begin{figure}
+            \includegraphics[width=0.6\textwidth]{lunze.png}
+            \caption{\cite{lunze1996regelungstechnik}}
+        \end{figure}
+    \end{columns}
+    \pause
+    \begin{columns}
+        \column{0.7\textwidth}
+        \textbf{Linear system with disturbances}
+        \begin{itemize}
+            \item For known disturbances robust control methods can be applied
+            \item Activation function of neural networks can be seen as disturbance
+        \end{itemize}
+
+        \begin{block}{System Identification Problem}
+            If the equations of the pendulum are not available but we are given data $\mathcal{D} = \{(u,y)_i\}_i^N$, which contains input output measurements. Finding the parameters $A,B_1,B_2,C_1,C_2$ can be seen as a deep learning problem.
+        \end{block}
+
+        \column{0.3\textwidth}
+        \begin{figure}
+            \includegraphics[width=0.8\textwidth]{willems.png}
+            \caption{\cite{willems1972dissipative}}
+        \end{figure}
+    \end{columns}
+    \pause
+    \begin{block}{}
+        Neural networks that can be represented in LTI structure with nonlinear disturbances can be analyzed with well established tools from robust control.
+    \end{block}
+    
+\end{frame}
+
+
+\subsection{Deep equilibrium model}
+\begin{frame}{Deep Equilibrium Models}
+    \framesubtitle{\cite{bai2019deep}}
+
+    \begin{itemize}
+        \item Deep sequence model $\mathcal{DEQ}$ that maps an input sequence $x_{1:T}$ to an output sequence $z_{1:T}^L$
+        \begin{onlyenv}<2->
+        \item Layers are weight tied $f_{\theta}(z_{1:T}^0; x) = f_{\theta}^{[i]}(z_{1:T}^0; x_{1:T})$ for all $i=0, \ldots, L-1$
+            
+        \end{onlyenv}
+    \end{itemize}
+
+    \begin{figure}
+        \input{fig/deq.tex}
+    \end{figure}
+
+    \begin{onlyenv}<3->
+        \begin{block}{Core idea of deep equilibrium models}
+            \begin{itemize}
+                \item  Equilibrium point $z_{1:T}^* = f_{\theta}(z_{1:T}^*;x_{1:T})$
+                \item Find equilibrium point via root finding method e.g. \emph{Newton's method}
+                    \begin{equation}
+                        \label{eq:root_find}
+                        z_{1:T}^* = \operatorname{RootFind}(g_{\theta}; x_{1:T}),
+                    \end{equation}
+                    were $g_{\theta}(z_{1:T}^{*}; x_{1:T}) = f_{\theta}(z_{1:T}^{*}; x_{1:T})-z_{1:T}^*$
+                \item No gradients on each layer, classical backpropagation not possible.
+            \end{itemize}
+        \end{block}
+    \end{onlyenv}
+
+    % \begin{itemize}
+    %     \item New model architecture for deep sequence models of the form 
+    %     \begin{equation}
+    %         \label{eq:nonlinear_system}
+    %         z_{1:T}^{[i+1]}=f_{\theta}^{[i]}(z_{1:T}^{[i]};x_{1:T}) \text{ for } i=0,1, \ldots, L-1.
+    %     \end{equation}
+    %     \item input sequence: $x_{1:T} = [x_1, \ldots, x_T] \in \mathbb{R}^{T\times p}$ where $x_i \in \mathbb{R}^p$, $T\in\mathbb{N}$ is the sequence length
+    %     \item Find fixed point $z_{1:T}^*$ of nonlinear system \eqref{eq:nonlinear_system} such that $z_{1:T}^* = f_{\theta}(z_{1:T}^*;x_{1:T})$
+    %     \item Fix point $z_{1:T}^*$ is the same solution as the forward pass of a deep sequence model.
+    %     \item Weights are tied.
+    %     \item Consider models that converge to an equilibrium point, output of DEQ is this equilibrium point.
+    %     \item Find equilibrium point via root finding method e.g. \emph{Newton's method}
+    %     \begin{equation}
+    %         \label{eq:root_find}
+    %         z_{1:T}^* = \operatorname{RootFind}(g_{\theta}; x_{1:T})
+    %     \end{equation}
+    %     Were $g_{\theta}(z_{1:T}^{*}; x_{1:T}) = f_{\theta}(z_{1:T}^{*}; x_{1:T})-z_{1:T}^*$
+    %    
+    %     \begin{itemize}
+    %         \item Gradient of equilibrium model (with respect to the parameters $\theta$) can be computed in one step with the Jacobian at equilibrium.
+    %     \end{itemize}
+    %     \item $f_{\theta}$ needs to be stable and constrained
+    % \end{itemize}
+    
+\end{frame}
+
+\section{Equilibrium Models for System Identification}
+
+\section{Conclusion}
+
+% \begin{frame}{Recurrent Equilibrium Models}
+%     \framesubtitle{\cite{revay2021recurrent}}
+    
+% \end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% final slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \finalslide{<<email>>}{<<tel>>}{<<street>>}{<<PLZ City>>}{<<Room>>}{<<department link>>}
+\finalslide{daniel.frank@ipvs.uni-stuttgart.de}{+49 711 685-88107}{Universitaetstraße 32}{70569 Stuttgart}{2.204}{https://www.ipvs.uni-stuttgart.de/departments/ac/}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% appendix %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\appendix
+\begin{frame}[allowframebreaks]{Literature}
+  \bibliographystyle{apalike}  
+  \bibliography{bib}
+\end{frame}
+
+\end{document}

@@ -1,0 +1,36 @@
+% \begin{tikzpicture}[node distance = 0.25cm and 0.5cm, auto, align=center]   
+%     \node[] (in_L0) {};
+%     \node[block, right= of in_L0] (L0) {$f(z^0; x^0)$};
+%     \node[right= of L0] (out_L0) {};
+
+%     \draw[->] (in_L0) \node[above right] {$z^0$} -- (L0);
+%     \draw[->] (L0) \node[above right] {$z^1$} -- (out_L0);
+
+% \end{tikzpicture}
+
+\begin{tikzpicture}[node distance = 0.3cm and 0.5cm, auto, align=center]    
+    % blocks
+    \node[] (inL1) {};
+    \node[block, right= of inL1] (L1) {$f_{\theta}^{[0]}(z_{1:T}^0; x_{1:T})$};
+    \node[right= of L1] (outL1) {};
+    \node[above= of L1] (inX) {};
+
+    \node[right= of outL1] (dots) {$\cdots$};
+
+    \node[right= of dots] (inLL) {};
+    \node[block, right= of inLL] (LL) {$f_{\theta}^{[L-1]}(z_{1:T}^{L-1}; x_{1:T})$};
+    \node[right= of LL] (outLL) {};
+    \node[above= of LL] (inXL) {};
+    
+    
+    % Input and outputs coordinates
+    
+    % lines
+    \draw[->] (inX) node[right] {$x_{1:T}$} -- (L1.north);
+    \draw[->] (inL1) node[above] {$z_{1:T}^0$} -- (L1);
+    \draw[->] (L1)  --  (outL1) node[above] {$z^1$};
+    \draw[->] (inXL) node[right] {$x_{1:T}$} -- (LL.north);
+    \draw[->] (inLL) node[above] {$z_{1:T}^{L-1}$} -- (LL);
+    \draw[->] (LL) -- (outLL) node[above] {$z_{1:T}^L$};
+
+\end{tikzpicture}

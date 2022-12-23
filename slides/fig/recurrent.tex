@@ -1,0 +1,20 @@
+\begin{tikzpicture}[node distance = 0.25cm and 0.5cm, auto, align=center]    
+    \node[] (inL) {};
+    \node[block, right= of inL] (L) {$f_{\theta}(z_{1:T}^{[i]}; x_{1:T})$};
+    \node[right= of L] (outL) {};
+    \node[above= of L] (inZ) {};
+    \node[block, below= of L] (delay) {$z_{1:T}^{-1}$};
+
+    \coordinate[] (output_zL)  at ($(L.south east)!0.75!(L.north east)$);
+    \coordinate[] (output_zi)  at ($(L.south east)!0.25!(L.north east)$);
+    \coordinate[] (input_x) at ($(L.south west)!0.75!(L.north west)$);
+    \coordinate[] (input_zi) at ($(L.south west)!0.25!(L.north west)$);
+
+    % \draw[->] (inZ) \node[right] {$z^{0}$} -- (L.north);
+    \draw[->] (inZ) node[right] {$_{1:T}z^0$} -- (L.north);
+    \draw[<-] (input_x) -- node[above] {$x_{1:T}$} ++(-1, 0);
+    \draw[->] (output_zL) -- node[above] {$z_{1:T}^L$} ++(1,0);
+    \draw[->] (output_zi) -- ++(0.5,0)  |- node[above right] {$z_{1:T}^{[i+1]}$} (delay.east);
+    \draw[->] (delay.west) -- ++(-1,0)node[above left] {$z_{1:T}^{[i]}$} |- (input_zi);
+    % \draw[->] (output_zi) -- ++(1,0) -| \node[below] {$z^{i+1}$} (input_zi)
+\end{tikzpicture}

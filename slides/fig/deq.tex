@@ -1,0 +1,22 @@
+\begin{tikzpicture}[node distance = 0.25cm and 0.5cm, auto, align=center]    
+    % blocks
+    \node[] (input) {};
+    \node[block, right= of input] (G) {
+        \begin{onlyenv}<1>
+            \input{fig/layer.tex}    
+        \end{onlyenv}
+        \begin{onlyenv}<2->
+            \input{fig/recurrent.tex}
+        \end{onlyenv}
+        
+    };
+    \node at (G.north) [above] {Deep Sequence Model $\mathcal{DEQ}$};
+    \node[right= of G] (output) {};
+    
+    % Input and outputs coordinates
+    
+    % lines
+    \draw[->] (input)  node[above] {$x_{1:T}, z_{1:T}^0$} -- (G);
+    \draw[->] (G) -- (output) node[above] {$z_{1:T}^L$} ;
+
+\end{tikzpicture}

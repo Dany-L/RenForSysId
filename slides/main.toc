@@ -1,0 +1,7 @@
+\beamer@sectionintoc {1}{Motivation}{2}{0}{1}
+\beamer@subsectionintoc {1}{1}{Running Example}{7}{0}{1}
+\beamer@sectionintoc {2}{Background}{9}{0}{2}
+\beamer@subsectionintoc {2}{1}{Recurrent Neural Networks as LTI systems}{10}{0}{2}
+\beamer@subsectionintoc {2}{2}{Deep equilibrium model}{18}{0}{2}
+\beamer@sectionintoc {3}{Equilibrium Models for System Identification}{21}{0}{3}
+\beamer@sectionintoc {4}{Conclusion}{22}{0}{4}

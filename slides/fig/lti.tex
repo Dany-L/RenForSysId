@@ -1,0 +1,35 @@
+\begin{tikzpicture}[node distance = 0.25cm and 0.7cm, auto, align=center]
+    % blocks
+    \node[] (output) {};
+    \begin{onlyenv}<-3>
+        \node[block, right= of output] (G) {$\begin{array}{ll}\textcolor{green}{x^{k+1}} & = \textcolor{red}{A}x^k + \textcolor{red}{B_1} u^k+\textcolor{green}{B_2}w^k \\ \hat{y}^k & = \textcolor{red}{C_1}x^k+\textcolor{red}{D_{11}}u^k+ D_{12}w^k\\ z^k & = C_2\textcolor{green}{x^k}+D_{21}u^k \end{array}$};
+        % Input and outputs coordinates
+        \coordinate[] (outputz)  at ($(G.south west)!0.75!(G.north west)$);
+        \coordinate[] (outputy)  at ($(G.south west)!0.25!(G.north west)$);
+        \coordinate[] (inputw) at ($(G.south east)!0.75!(G.north east)$);
+        \coordinate[] (inputu) at ($(G.south east)!0.25!(G.north east)$);
+        \node[right= of G] (input) {};
+        \node[block, above= of G] (delta) {$w^k = \Delta(z^k)$};    
+        % lines
+        \draw[<-] (inputu) --  node[above right ] {$u^k$} ++(1,0);
+        \draw[->] (outputz)node[above left]{$z^k$}  -- ++(-0.5,0) |-   (delta.west) ;
+        \draw[->] (outputy)  -- node[above left] {$\hat{y}^k$} ++(-1,0);
+        \draw[->] (delta.east)  -- ++(2,0) |- node[above right] {$w^k$}(inputw) ;
+    \end{onlyenv}
+    \begin{onlyenv}<4>
+        \node[block, right= of output] (G) {$\begin{array}{ll}h^{(t)} & = I w^k \\ \hat{y}^k & = D_{12}w^k\\ z^k & = C_2h^{(t-1)}+D_{21}u^k \end{array}$};
+        % Input and outputs coordinates
+        \coordinate[] (outputz)  at ($(G.south west)!0.75!(G.north west)$);
+        \coordinate[] (outputy)  at ($(G.south west)!0.25!(G.north west)$);
+        \coordinate[] (inputw) at ($(G.south east)!0.75!(G.north east)$);
+        \coordinate[] (inputu) at ($(G.south east)!0.25!(G.north east)$);
+        \node[right= of G] (input) {};
+        \node[block, above= of G] (delta) {$w^k = \tanh(z^k)$};    
+        % lines
+        \draw[<-] (inputu) --  node[above right ] {$u^k$} ++(1,0);
+        \draw[->] (outputz)node[above left]{$z^k$}  -- ++(-0.5,0) |-   (delta.west) ;
+        \draw[->] (outputy)  -- node[above left] {$\hat{y}^k$} ++(-1,0);
+        \draw[->] (delta.east)  -- ++(1.5,0) |- node[above right] {$w^k$}(inputw) ;
+    \end{onlyenv}
+
+\end{tikzpicture}

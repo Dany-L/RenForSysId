@@ -1,0 +1,26 @@
+\begin{tikzpicture}[node distance = 0.25cm and 0.7cm, auto, align=center]
+
+    % blocks
+    \node[] (output) {};
+    \node[block, right= of output] (G) {$\mathcal{G}$};
+    \node[block, above= of G] (delta) {$\Delta(\cdot)$};
+    \node[right= of G] (input) {};
+    \node[dotted_block, fit = (G) (delta)] (S) {};
+    \node at (S.north west) [above] {$\mathcal{S}$};
+    
+    
+    % Input and outputs coordinates
+    \coordinate[] (outputz)  at ($(G.south west)!0.75!(G.north west)$);
+    \coordinate[] (outputy)  at ($(G.south west)!0.25!(G.north west)$);
+    \coordinate[] (inputw) at ($(G.south east)!0.75!(G.north east)$);
+    \coordinate[] (inputu) at ($(G.south east)!0.25!(G.north east)$);
+    
+    % lines
+    \draw[<-] (inputu) -- ++(1.5,0);
+    \draw[-] (inputu) ++(1.5,0) node[right]{$u^k$}++(0.5,0);
+    \draw[->] (outputz) -- ++(-0.3,0) node[above left]{$z^k$}  |-   (delta.west) ;
+    \draw[->] (outputy)  --  ++(-1.5,0);
+    \draw[-] (outputy)  ++(-1.5,0) node[left]{$\hat{y}^k$} ++(-1,0);
+    \draw[->] (delta.east)  -- ++(0.3,0) |- node[above right] {$w^k$}(inputw) ;
+
+\end{tikzpicture}
