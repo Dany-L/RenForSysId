@@ -1,0 +1,16 @@
+
+\begin{tikzpicture}[>=stealth,->,line width=0.75pt]
+    
+    \matrix[matrix of nodes, column sep=3em, row sep=1em, align=center, nodes={rectangle, anchor=center}, every node/.style = {draw, shape=circle, align=center},] {
+        \node (x1) {$x_1$}; & \node (h1) {$h_1$};\\
+        & & \node (o) {$\hat{y}$}; \\
+        \node (x2) {$x_2$}; & \node (h2) {$h_2$};\\
+    };
+    
+    \draw (x1) -> (h1) node[above,midway] {$W^{\text{h}}_{11}$};
+    \draw (x1) -> (h2) node[above,midway,yshift=0.5em] {$W^{\text{h}}_{12}$};
+    \draw (x2) -> (h1) node[below,midway,yshift=-0.5em] {$W^{\text{h}}_{21}$};
+    \draw (x2) -> (h2) node[below,midway] {$W^{\text{h}}_{22}$};
+    \draw (h1) -> (o) node[above,midway] {$W^{\text{o}}_{1}$};
+    \draw (h2) -> (o) node[below,midway] {$W^{\text{o}}_{2}$};
+\end{tikzpicture}

@@ -15,7 +15,7 @@ class InvertedPendulum(DynamicModel):
         g: np.float64 = 9.81
     ) -> None:
         self.nu = 1
-        self.ny = 2
+        self.ny = 1
         self.nx = 2
         self.nz = 1
         self.nw = 1
@@ -23,12 +23,12 @@ class InvertedPendulum(DynamicModel):
             A = np.array([[1, delta], [(g*delta)/l, 1 - (mu*delta)/(m * l**2)]]),
             B_1 = np.array([[0],[delta/(m*l**2)]]),
             B_2 = np.array([[0], [-(g*delta)/l]]),
-            C_1 = np.eye(self.ny),
+            C_1 = np.array([[1, 0]]),
             C_2 = np.array([[1, 0]]),
             D_11 = np.zeros((self.ny, self.nu)),
             D_12 = np.zeros((self.ny, self.nw)),
             D_21 = np.zeros((self.nz, self.nu)),
-            D_22 = np.array([[0]]),
+            D_22 = np.array([[0.5]]),
             Delta=lambda z: z - np.sin(z)
         )
         self.m = m

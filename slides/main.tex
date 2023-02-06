@@ -64,7 +64,7 @@ aspectratio=169,% for widescreen (16:9) presentations
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% setup %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\title[DEQ]{ML in the Science \\ Deep Equilibrium Models}
+\title[\Acrfull{deq}]{ML in the Science \\ Deep Equilibrium Models}
 % \subtitle{Hauptseminar Winterterm 2021}
 \author[]{Daniel Frank}
 \institute[Analytic Computing]{Institute for Parallel and Distributed Systems}
@@ -120,13 +120,13 @@ aspectratio=169,% for widescreen (16:9) presentations
 \end{frame}
 
 % TODO fix table of content, could be a problem with enumerate
-% \begin{frame}{Outline}
-%   \tableofcontents
-% \end{frame}
+\begin{frame}{Outline}
+  \tableofcontents
+\end{frame}
 
 
-\section{Motivation}
-\begin{frame}{Equilibrium Networks in Deep Learning}
+\section{What are \acrlong{deq}?}
+\begin{frame}{\Acrlong{deq} in Machine Learning}
     \framesubtitle{Where do they come from?}
     \begin{columns}[T]
         \column{0.33\textwidth}
@@ -143,68 +143,385 @@ aspectratio=169,% for widescreen (16:9) presentations
             \pause
         \column{0.33\textwidth}
             \begin{figure}
-                \includegraphics[width=\textwidth]{ren.png}
-                \caption{From CDC 2021, \emph{8 citations} \cite{revay2021recurrent} }
+                \includegraphics[width=\textwidth]{node.png}
+                \caption{From NeurIPS 2018, \emph{about 2700 citations} \cite{chen2018neural} }
             \end{figure}
     \end{columns}
     \pause
-    \begin{block}{Connection between recurrent neural networks and linear time-invariant (LTI) systems}
-        \begin{itemize}
-            \item Recurrent neural networks are a special case of LTI systems with nonlinear disturbance
-            \item Equilibrium networks further generalize the network structure
-            \item Robustness analysis known from robust control can be applied to such systems
-        \end{itemize}
+    % \begin{block}{Connection between recurrent neural networks and \gls{lti} systems}
+    %     \begin{itemize}
+    %         \item Recurrent neural networks are a special case of LTI systems with a nonlinear disturbance
+    %         \item Equilibrium networks further generalize the network structure
+    %         \item Robustness analysis known from robust control can be applied to such systems
+    %     \end{itemize}
         
+    % \end{block}
+    \begin{block}{Why are they interesting?}
+        \begin{itemize}
+            \item Training of \gls{deq} only requires constant memory
+            \item Achieve state-of-the-art performance compared to standard deep learning approaches
+            \item \Gls{deq} have a strong relation to system theory
+        \end{itemize}
     \end{block}
 \end{frame}
 
-\subsection{Running Example}
+\subsection{Forward Pass}
+\begin{frame}{\Acrlongpl{deq} - Forward Pass}
+    \framesubtitle{\cite{bai2019deep}}
+
+    \begin{itemize}
+        \item $\mathcal{S}_{\operatorname{DEQ}}$ maps an input sequence $x_{1:T}$ to an output sequence $z_{1:T}^L$. The input is \emph{injected} at each layer, the number of layer is denoted by $L$.
+        \begin{onlyenv}<2->
+        \item Layers are weight tied $f_{\theta}(z_{1:T}^0; x) = f_{\theta}^{[i]}(z_{1:T}^0; x_{1:T})$ for all $i=0, \ldots, L-1$
+            
+        \end{onlyenv}
+    \end{itemize}
+
+    \begin{figure}
+        \input{fig/deq.tex}
+    \end{figure}
+
+    \begin{onlyenv}<3->
+        \begin{block}{Core idea of \glspl{deq}}
+            \begin{itemize}
+                \item What happens for $L\to\infty$?
+                \begin{onlyenv}<4->
+                    $$z_{1:T}^* = f_{\theta}(z_{1:T}^*;x_{1:T})$$
+                \end{onlyenv}
+                \begin{onlyenv}<5->
+                \item How restrictive is weight tying?
+                \begin{onlyenv}<6->
+                    \begin{itemize}
+                        \item \emph{... Any traditional $L$-layer deep network (in "standard" format) can be represented by a weight-tied, input-injected network of equivalent depth, with linear increase in width ...}
+                    \end{itemize}    
+                \end{onlyenv}
+                
+                \end{onlyenv}
+                \begin{onlyenv}<7->
+                \item Any \emph{black-box-root-finding} algorithm can be applied to solve the forward pass
+                \end{onlyenv}
+                
+                % \item  Equilibrium point $z_{1:T}^* = f_{\theta}(z_{1:T}^*;x_{1:T})$
+                % \item Find equilibrium point via root finding method e.g. \emph{Newton's method}
+                %     \begin{equation}
+                %         \label{eq:root_find}
+                %         z_{1:T}^* = \operatorname{RootFind}(g_{\theta}; x_{1:T}),
+                %     \end{equation}
+                %     were $g_{\theta}(z_{1:T}^{*}; x_{1:T}) = f_{\theta}(z_{1:T}^{*}; x_{1:T})-z_{1:T}^*$
+                % \item No gradients on each layer, classical backpropagation not possible.
+            \end{itemize}
+        \end{block}
+    \end{onlyenv}
+    
+\end{frame}
+
+\subsection{Backward Pass}
+\begin{frame}{\Acrlong{deq} - Backward Pass}
+    \framesubtitle{\cite{bai2019deep}}
+    \begin{columns}[T]
+        \column{0.5\textwidth}
+            \textbf{Traditional backpropagation is not suitable}
+                \begin{itemize}
+                    \item Would depend on the root finding method
+                    \item Intermediate results are not stored during the forward pass
+                \end{itemize}
+        \column{0.5\textwidth}
+        \begin{onlyenv}<1>
+            \begin{figure}
+                \input{fig/nn.tex}
+                \caption{Backpropagation usually takes the same route as the forward pass.}
+            \end{figure}
+        \end{onlyenv}
+
+        
+    \end{columns}
+    \begin{onlyenv}<2->
+        \begin{block}{Gradient of the Equilibrium Model}
+            Assume the loss function
+             $$\ell=\mathcal{L}\left(h\left(\operatorname{RootFind}\left(g_0 ; x_{1:T}\right)\right), y_{1: T}\right)$$
+            \begin{itemize}
+                \item $h:\mathbb{R}^{n_z} \mapsto \mathbb{R}^{n_y}$ can be any differentiable function (e.g. linear)
+                \item $y_{1:T}$ is the ground-truth sequence
+                \item $\mathcal{L}:\mathbb{R}^{n_y}\times\mathbb{R}^{n_y} \mapsto \mathbb{R}$ is the loss function
+            \end{itemize}
+            \begin{onlyenv}<3->
+                The loss gradient with respect to $(\cdot)$ is
+                $$\frac{\partial \ell}{\partial(\cdot)}=-\frac{\partial \ell}{\partial h} \frac{\partial h}{\partial z}_{1: T}^{\star}\left(\left.J_{g_\theta}^{-1}\right|_{{x}_{1: T}^*}\right) \frac{\partial f_\theta\left(z_{1: T}^{\star} ; x_{1: T}\right)}{\partial(\cdot)}$$
+                \begin{itemize}
+                    \item $\left.J_{g_\theta}^{-1}\right|_{{x}_{1: T}^*}$ si the inverse Jacobian of $g_{\theta}$ evaluated at $x$
+                \end{itemize}
+            \end{onlyenv}
+        \end{block}
+    \end{onlyenv}
+
+    
+\end{frame}
+
+\defverbatim[colored]\makeFwd{
+\begin{lstlisting}[language=Python, style=numbered, caption={Traditional forward pass},label=code:fwd]
+# forward pass for fixed number of layers
+z = torch.zeros(size=(1, n_z))
+x = torch.tensor(u).reshape(1, n_x)
+for l in range(L):
+    z = nl(W_z(z) + U_z(x))
+y_hat = W_y(z)
+\end{lstlisting}
+}
+\defverbatim[colored]\makeDeq{
+\begin{lstlisting}[language=Python, style=numbered, caption={Forward pass of \gls{deq}},label=code:deq]   
+# DEQ
+def g_theta(z):
+    z = z.reshape(n_z,1)
+    return np.squeeze(np.tanh(W_z_numpy @ z + U_z_numpy @ x + b_z_numpy) - z)
+
+z_star, infodict, ier, mesg = fsolve(g_theta, x0=z_0, full_output=True)
+z_star = z_star.reshape(n_z, 1)
+y_hat_eq = W_y_numpy @ z_star + b_y_numpy
+\end{lstlisting}
+}
+\defverbatim[colored]\makeCmp{
+\begin{lstlisting}[language=Python, style=numbered,label=code:cmp]  
+Number of finite layers: 0       || z^L - z^* ||^2: 0.7032
+Number of finite layers: 1       || z^L - z^* ||^2: 0.3898
+Number of finite layers: 2       || z^L - z^* ||^2: 0.2898
+Number of finite layers: 3       || z^L - z^* ||^2: 0.1621
+Number of finite layers: 4       || z^L - z^* ||^2: 0.09451
+Number of finite layers: 10      || z^L - z^* ||^2: 0.001685
+Number of finite layers: 20      || z^L - z^* ||^2: 7.595e-06
+Number of finite layers: 30      || z^L - z^* ||^2: 7.069e-08
+\end{lstlisting}
+}
+\subsection{Example}
+\begin{frame}{Simple \gls{deq} - Example}
+    \vspace{-0.5cm}
+    \textbf{\emph{Assume}: Sequence length $T=3$, size of hidden state $n_z = 10$, input and output size $n_y = n_x = 1$}:
+    \begin{itemize}
+        \item Weights are randomly initialized
+        \item Initial hidden state $z^0_{1:T} = 0$
+        \item $W_z \in \mathbb{R}^{n_z \times n_z}$, $U_z\in \mathbb{R}^{n_z \times T}$
+        \item Linear output layer $W_y \in \mathbb{R}^{n_y \times n_z}$
+    \end{itemize}
+    \vspace{0.2cm}
+    \begin{columns}
+        \column{0.5\textwidth}
+        \begin{onlyenv}<2,4->
+            \textbf{Network with fixed layer size:}
+            $$
+                \begin{aligned}
+                    z_{1:T}^{l+1} & = \sigma\left(W_z z_{1:T}^{l} + U_z x_{1:T} + b_z\right) \qquad l=1, \ldots, L-1\\
+                    \hat{y}_{1:T} & = W_y z^*_{1:T} + b_z
+                \end{aligned}
+            $$
+        \end{onlyenv}
+
+        \column{0.5\textwidth}
+        \begin{onlyenv}<3->
+            \textbf{\Gls{deq}:}
+            $$
+                \begin{aligned}
+                    z_{1:T}^{*} & = \operatorname{RootFind}\left(\sigma\left(W_z z_{1:T} + U_z x_{1:T} + b_z\right)- z_{1:T}\right)\\
+                    \hat{y}_{1:T} & = W_y z^L_{1:T} + b_z
+                \end{aligned}
+            $$
+        \end{onlyenv}
+
+    \end{columns}
+    \begin{onlyenv}<2>
+
+        \makeFwd
+    \end{onlyenv}
+    \begin{onlyenv}<3>
+        \makeDeq
+    \end{onlyenv}
+    \begin{onlyenv}<4->
+        \vspace{0.2cm}
+        \textbf{Comparison:}
+            \makeCmp
+    \end{onlyenv}
+\end{frame}
+
+\defverbatim[colored]\makeInit{
+\begin{lstlisting}[language=Python, style=numbered, caption={Added line $2$}, label=code:init]  
+W_z = torch.nn.Linear(in_features=n_z, out_features=n_z, bias=True)
+torch.nn.init.normal_(W_z.weight)
+U_z = torch.nn.Linear(in_features=n_x, out_features=n_z, bias=False)
+W_y = torch.nn.Linear(in_features=n_z, out_features=n_x, bias=True)
+\end{lstlisting}
+}
+\defverbatim[colored]\makeCmpMon{
+\begin{lstlisting}[language=Python, style=numbered, label=code:cmp2]  
+    Number of finite layers: 0       || z^L - z^* ||^2: 0.4664
+    Number of finite layers: 1       || z^L - z^* ||^2: 0.332
+    Number of finite layers: 2       || z^L - z^* ||^2: 1.035
+    Number of finite layers: 3       || z^L - z^* ||^2: 1.834
+    Number of finite layers: 4       || z^L - z^* ||^2: 2.348
+    Number of finite layers: 10      || z^L - z^* ||^2: 2.75
+    Number of finite layers: 20      || z^L - z^* ||^2: 2.724
+    Number of finite layers: 30      || z^L - z^* ||^2: 2.927
+\end{lstlisting}
+}
+
+
+\section{\Acrlongpl{mondeq}}
+\subsection{Motivation}
+\begin{frame}{Example continued}
+    \textbf{Do the solutions $z^{*}_{1:T}$ and $z^L_{1:T}$ always converge for sufficient large $L$?}
+    \begin{itemize}
+        \item Let the weight of the hidden layer be initialized by a normal distribution
+    \end{itemize}
+    \makeInit
+    \pause
+    \textbf{Comparison}:
+    \makeCmpMon
+\end{frame}
+\subsection{Formal Definition}
+\begin{frame}{Core idea of \acrfull{mondeq}}
+    \framesubtitle{\cite{winston2020monotone}}
+    \vspace{-0.5cm}
+    \begin{block}{Finding equilibrium point as operator splitting \cite[Theorem 1]{winston2020monotone}}
+        Consider (again) a weight-tied input-injected network
+        \begin{equation}
+            z^{k+1} = \sigma\left(W_z z^k + U_z x+b_z\right)
+            \label{eq:iter}
+        \end{equation}
+        and an equilibrium point that remains constant after update
+        $$
+            z^* = \sigma\left(Wz_z^* + U_zx+b\right).
+        $$
+        Finding an equilibrium point of \eqref{eq:iter} is equivalent of finding a zero of the operator splitting problem $0 \in (F+G)(z^*)$ with the operators
+        \begin{equation}
+            F(z) = (I-W_z)(z) - (U_z x+b), \qquad G=\partial f
+            \label{eq:operator_splitting}
+        \end{equation}
+        and $\sigma(\cdot) = \operatorname{prox}_f^1(\cdot)$ for some convex closed proper function $f$, where $\operatorname{prox}_f^{\alpha}$ denotes the proximal operator
+        $$
+            \operatorname{prox}_f^{\alpha}(x) \equiv \operatorname{argmin}_z \frac{1}{2}\|x - z\|_2^2 + \alpha f(z)
+        $$
+    \end{block}
+    \pause
+    \begin{itemize}
+        \item An introduction to monotone operator theory would be required to fully appreciate the result, see \cite[Appendix A]{winston2020monotone}
+        \item Lets view the operator splitting as a \emph{black-box-root-finding} algorithm
+    \end{itemize}
+\end{frame}
+
+\defverbatim[colored]\makeDeqUniform{
+\begin{lstlisting}[language=Python, style=numbered, label=code:deqUniform]  
+min EW of (I-W_z): 0.6272        L: 40   || z^L - z^* ||^2: 3.999e-08
+min EW of (I-W_z): 0.3782        L: 40   || z^L - z^* ||^2: 4.184e-08
+min EW of (I-W_z): 0.5671        L: 40   || z^L - z^* ||^2: 3.373e-08
+min EW of (I-W_z): 0.6786        L: 40   || z^L - z^* ||^2: 6.231e-08
+min EW of (I-W_z): 0.8057        L: 40   || z^L - z^* ||^2: 2.551e-08
+min EW of (I-W_z): 0.662         L: 40   || z^L - z^* ||^2: 3.364e-08
+min EW of (I-W_z): 0.3946        L: 40   || z^L - z^* ||^2: 4.522e-08
+min EW of (I-W_z): 0.6532        L: 40   || z^L - z^* ||^2: 2.656e-08
+min EW of (I-W_z): 0.4264        L: 40   || z^L - z^* ||^2: 3.059e-08
+min EW of (I-W_z): 0.6787        L: 40   || z^L - z^* ||^2: 5.395e-08
+\end{lstlisting}
+}
+\defverbatim[colored]\makeDeqNormal{
+\begin{lstlisting}[language=Python, style=numbered, label=code:deqNormal]  
+min EW of (I-W_z): -2.172        L: 40   || z^L - z^* ||^2: 3.301
+min EW of (I-W_z): -2.353        L: 40   || z^L - z^* ||^2: 2.48
+min EW of (I-W_z): -1.519        L: 40   || z^L - z^* ||^2: 2.585
+min EW of (I-W_z): -1.657        L: 40   || z^L - z^* ||^2: 2.839
+min EW of (I-W_z): -0.6791       L: 40   || z^L - z^* ||^2: 2.59
+min EW of (I-W_z): -2.574        L: 40   || z^L - z^* ||^2: 3.095
+min EW of (I-W_z): -1.609        L: 40   || z^L - z^* ||^2: 3.514
+min EW of (I-W_z): -3.02         L: 40   || z^L - z^* ||^2: 2.832
+min EW of (I-W_z): -1.922        L: 40   || z^L - z^* ||^2: 2.983
+min EW of (I-W_z): -1.023        L: 40   || z^L - z^* ||^2: 2.722
+\end{lstlisting}
+}
+\subsection{Existence of a unique solution}
+\begin{frame}{Monotone Operator}
+    \vspace{-0.5cm}
+    \begin{block}{Monotone operator $F(z) = (I-W_z)(z)- (U_z x+b)$ from \eqref{eq:operator_splitting}.}
+        If 
+        $$
+            I-W_z \succeq mI \qquad m>0
+        $$
+        is strongly monotone, an unique equilibrium point $z^*$ exists.
+    \end{block}
+    \begin{itemize}
+        \item For a scalar, linear function this connection is intuitive
+        $$
+            F_{\operatorname{scal}}(z) = \underbrace{(1-w)}_{\text{slope}}z + \underbrace{(ux+b)}_{\text{constant}}
+        $$ 
+    \end{itemize}
+    \begin{onlyenv}<2>
+        \makeDeqUniform
+    \end{onlyenv}
+    \begin{onlyenv}<3>
+        \makeDeqNormal
+    \end{onlyenv}
+
+    \begin{onlyenv}<4->
+        \begin{block}{Introduce constraints on the weight $W_z$ to ensure montonicity}
+            Monotonicity is ensured $I-W_z\succeq mI$ if there exists $A,~B \in \mathbb{R}^{n_z \times n_z}$ such that
+            $$
+                W_z = (1-m)I - A^{\mathrm{T}}A+B-B^{\mathrm{T}}.
+            $$
+        \end{block}
+        \begin{itemize}
+            \item The weight $W_z$ is now directly parametrized by $A$ and $B$
+        \end{itemize}
+    \end{onlyenv}
+        
+\end{frame}
+
+
+\section{Connection to System Theory}
+\subsection{Nonlinear system identification}
 \begin{frame}{Inverted pendulum with torque input}
     \framesubtitle{Classical toy example in control}
     \begin{columns}[]
         \column{0.6\textwidth}      
-        \textbf{Difference equation of pendulum dynamics}
-        \begin{align}
-            \mathcal{G} &\left\{ \begin{aligned} 
-                x^{k+1} & = 
-                \begin{pmatrix}
-                    1 & \delta \\
-                    \frac{g \delta}{l} & 1 - \frac{\mu \delta}{m l^2}
-                \end{pmatrix}
-                x^k + 
-                \begin{pmatrix}
-                    0 \\
-                    -\frac{g\delta}{l}
-                \end{pmatrix}
-                u^k +
-                \begin{pmatrix}
-                    0 \\
-                    \frac{\delta}{ml^2}
-                \end{pmatrix}
-                w^k \\
-                y^k & = 
-                \begin{pmatrix}
-                    1 & 0
-                \end{pmatrix} x^k \\
-                z^k & = 
-                \begin{pmatrix}
-                    1 & 0
-                \end{pmatrix}
-                x^k
-            \end{aligned} \right.\label{eq:linear_inv_pend}\\
-            w^k &  = \Delta(z^k) = z^k - \sin(z^k) \label{eq:nonlinear_inv_pend}
-        \end{align}
+        % \textbf{Difference equation of pendulum dynamics}
+        % \begin{align}
+        %     \mathcal{G} &\left\{ \begin{aligned} 
+        %         x^{k+1} & = 
+        %         \begin{pmatrix}
+        %             1 & \delta \\
+        %             \frac{g \delta}{l} & 1 - \frac{\mu \delta}{m l^2}
+        %         \end{pmatrix}
+        %         x^k + 
+        %         \begin{pmatrix}
+        %             0 \\
+        %             -\frac{g\delta}{l}
+        %         \end{pmatrix}
+        %         u^k +
+        %         \begin{pmatrix}
+        %             0 \\
+        %             \frac{\delta}{ml^2}
+        %         \end{pmatrix}
+        %         w^k \\
+        %         y^k & = 
+        %         \begin{pmatrix}
+        %             1 & 0
+        %         \end{pmatrix} x^k \\
+        %         z^k & = 
+        %         \begin{pmatrix}
+        %             1 & 0
+        %         \end{pmatrix}
+        %         x^k
+        %     \end{aligned} \right.\label{eq:linear_inv_pend}\\
+        %     w^k &  = \Delta(z^k) = z^k - \sin(z^k) \label{eq:nonlinear_inv_pend}
+        % \end{align}
+        \begin{block}{System Identification Problem}
+            If the equations of the pendulum are not available but we are given data $\mathcal{D} = \{(u,y)_i\}_i^N$, which contains input output measurements. Finding the parameter set $\theta$ can be seen as a deep learning problem.
+        \end{block}
         \begin{itemize}
-            \item The states $x^k = [\phi, ~ \dot{\phi}]^{\mathrm{T}}$ represents the \emph{angle} and \emph{angular velocity}, friction is denoted by $\mu$ and sample time by $\delta = 0.01$
+            \item The system states $x_{\text{sys}}^k = [\phi, ~ \dot{\phi}]^{\mathrm{T}}$ represents the \emph{angle} and \emph{angular velocity}
             \item Input $u^k$ represents a torque
             \item Output $y^k$ is the \emph{angle} $\phi$
             \item One stable and one unstable equilibrium point         
         \end{itemize}
-        \begin{onlyenv}<2>
-            \begin{block}{}
-                Linearized system can be used to design a controller that stabilizes the unstable equilibrium point
-            \end{block}
-        \end{onlyenv}
+        % \begin{onlyenv}<2>
+        %     \begin{block}{}
+        %         Linearized system can be used to design a controller that stabilizes the unstable equilibrium point
+        %     \end{block}
+        % \end{onlyenv}
 
         % \begin{figure}
         %     \input{fig/lti.tex}
@@ -212,12 +529,12 @@ aspectratio=169,% for widescreen (16:9) presentations
         % \end{figure}
         \column{0.4\textwidth}
         \vspace{-0.7cm}
-        \begin{onlyenv}<1>
-            \movie[autostart]{\includegraphics[width=\textwidth]{inv_pendulum_poster.png}}{./fig/inv_pendulum.mov}    
-        \end{onlyenv}
-        \begin{onlyenv}<2>
-            \movie[autostart]{\includegraphics[width=\textwidth]{inv_pendulum_controlled_poster.png}}{./fig/inv_pendulum_controlled.mov}  
-        \end{onlyenv}
+        % \begin{onlyenv}<1>
+        \movie[autostart]{\includegraphics[width=\textwidth]{inv_pendulum_poster.png}}{./fig/inv_pendulum.mov}    
+        % \end{onlyenv}
+        % \begin{onlyenv}<2>
+        %     \movie[autostart]{\includegraphics[width=\textwidth]{inv_pendulum_controlled_poster.png}}{./fig/inv_pendulum_controlled.mov}  
+        % \end{onlyenv}
         
         \vspace{-0.7cm}
         \begin{figure}
@@ -228,10 +545,7 @@ aspectratio=169,% for widescreen (16:9) presentations
 
 \end{frame}
 
-
-\section{Background}
-
-\subsection{Recurrent Neural Networks as LTI systems}
+\subsection{Recurrent Neural Networks as \gls{lti} system}
 \begin{frame}{Generalization of Recurrent Neural Networks}
     \framesubtitle{LTI system with nonlinear disturbance}
     \vspace{-0.5cm}
@@ -260,22 +574,83 @@ aspectratio=169,% for widescreen (16:9) presentations
     \begin{onlyenv}<3->
         \begin{figure}
             \centering
+            \label{fig:lti_cmp}
             \input{fig/lti.tex}
-            \caption{LTI with non-linear disturbance.}
-            \label{fig:lti}
+            \caption{LTI with nonlinear disturbance.}
         \end{figure}  
         \vspace{-0.3cm}  
         \vfill
-        \begin{onlyenv}<4>
-            \begin{block}{}
-                \begin{itemize}
-                    \item For $A=B_1=C_1=D_{11} = 0$, $B_2 = I$, $\Delta(\cdot) = \tanh(\cdot)$ and $h^{t-1} = x^k$ the networks in Figure~\ref{fig:rnn} and Figure~\ref{fig:lti} are equivalent
-                \end{itemize}
-            \end{block}
-        \end{onlyenv}
+        \begin{block}{}
+            \begin{itemize}
+                \item For $A=B_1=C_1=D_{11}, D_{22} = 0$, $B_2 = I$, $\Delta(\cdot) = \tanh(\cdot)$ and $h^{t-1} = x^k$ the networks in Figure~\ref{fig:rnn} and Figure~8 are equivalent
+            \end{itemize}
+        \end{block}
 
     \end{onlyenv}
 \end{frame}
+
+\subsection{\Acrlong{ren}}
+\begin{frame}{Linear systems with disturbances can be analyzed with tools from robust control}
+    \vspace{-0.5cm}
+    \begin{onlyenv}<1>
+        \begin{columns}
+            \column{0.6\textwidth}
+                \textbf{Neural networks with guarantees}
+                \begin{itemize}
+                    \item \Gls{rnn} interpreted as linear systems with nonlinear disturbances can be analyzed with tools from robust control
+                    \item The neural network has system theoretic guarantees
+                \end{itemize}
+            \column{0.4\textwidth}
+                \begin{figure}
+                    \includegraphics[width=\textwidth]{ren.png}
+                    \caption{From CDC 2021, \emph{about 8 citations}\cite{revay2021recurrent}}
+                \end{figure}
+        \end{columns}
+    \end{onlyenv}
+    \begin{onlyenv}<2>
+        \begin{figure}
+            \includegraphics[width=0.4\textwidth]{fig/f16.png}
+            \caption{F16 nonlinear system identification benchmark}
+        \end{figure}
+        
+    \end{onlyenv}
+    \begin{onlyenv}<2>
+        \begin{columns}[T]
+            \column{0.5\textwidth}
+                \begin{figure}
+                    \includegraphics[width=0.75\textwidth]{fig/rob_vs_acc.png}
+                    \caption{Robustness versus accuracy \cite[Fig. 2]{revay2021recurrent}}
+                \end{figure}
+            \column{0.5\textwidth}
+                \begin{figure}
+                    \includegraphics[width=0.75\textwidth]{fig/perf.png}
+                    \caption{Stability \cite[Fig. 5]{revay2021recurrent}}
+                \end{figure}
+        \end{columns}
+    \end{onlyenv}
+\end{frame}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% final slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \finalslide{<<email>>}{<<tel>>}{<<street>>}{<<PLZ City>>}{<<Room>>}{<<department link>>}
+\finalslide{daniel.frank@ipvs.uni-stuttgart.de}{+49 711 685-88107}{Universitaetstraße 32}{70569 Stuttgart}{2.204}{https://www.ipvs.uni-stuttgart.de/departments/ac/}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% appendix %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\appendix
+\begin{frame}[allowframebreaks]{Literature}
+  \bibliographystyle{apalike}  
+  \bibliography{bib}
+\end{frame}
+
+
+
+\section{Background}
+
+
 
 \begin{frame}{Pendulum is also in LTI structure}
     \framesubtitle{Same representation as RNNs}
@@ -369,36 +744,6 @@ aspectratio=169,% for widescreen (16:9) presentations
 
 
 \subsection{Deep equilibrium model}
-\begin{frame}{Deep Equilibrium Models}
-    \framesubtitle{\cite{bai2019deep}}
-
-    \begin{itemize}
-        \item Deep sequence model $\mathcal{DEQ}$ that maps an input sequence $x_{1:T}$ to an output sequence $z_{1:T}^L$
-        \begin{onlyenv}<2->
-        \item Layers are weight tied $f_{\theta}(z_{1:T}^0; x) = f_{\theta}^{[i]}(z_{1:T}^0; x_{1:T})$ for all $i=0, \ldots, L-1$
-            
-        \end{onlyenv}
-    \end{itemize}
-
-    \begin{figure}
-        \input{fig/deq.tex}
-    \end{figure}
-
-    \begin{onlyenv}<3->
-        \begin{block}{Core idea of deep equilibrium models}
-            \begin{itemize}
-                \item  Equilibrium point $z_{1:T}^* = f_{\theta}(z_{1:T}^*;x_{1:T})$
-                \item Find equilibrium point via root finding method e.g. \emph{Newton's method}
-                    \begin{equation}
-                        \label{eq:root_find}
-                        z_{1:T}^* = \operatorname{RootFind}(g_{\theta}; x_{1:T}),
-                    \end{equation}
-                    were $g_{\theta}(z_{1:T}^{*}; x_{1:T}) = f_{\theta}(z_{1:T}^{*}; x_{1:T})-z_{1:T}^*$
-                \item No gradients on each layer, classical backpropagation not possible.
-            \end{itemize}
-        \end{block}
-    \end{onlyenv}
-
     % \begin{itemize}
     %     \item New model architecture for deep sequence models of the form 
     %     \begin{equation}
@@ -422,29 +767,10 @@ aspectratio=169,% for widescreen (16:9) presentations
     %     \end{itemize}
     %     \item $f_{\theta}$ needs to be stable and constrained
     % \end{itemize}
-    
-\end{frame}
-
-\section{Equilibrium Models for System Identification}
-
-\section{Conclusion}
 
 % \begin{frame}{Recurrent Equilibrium Models}
 %     \framesubtitle{\cite{revay2021recurrent}}
     
 % \end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% final slide %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \finalslide{<<email>>}{<<tel>>}{<<street>>}{<<PLZ City>>}{<<Room>>}{<<department link>>}
-\finalslide{daniel.frank@ipvs.uni-stuttgart.de}{+49 711 685-88107}{Universitaetstraße 32}{70569 Stuttgart}{2.204}{https://www.ipvs.uni-stuttgart.de/departments/ac/}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% appendix %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-\appendix
-\begin{frame}[allowframebreaks]{Literature}
-  \bibliographystyle{apalike}  
-  \bibliography{bib}
-\end{frame}
 
 \end{document}
