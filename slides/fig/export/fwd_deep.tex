@@ -1,0 +1,52 @@
+\documentclass[crop, tikz, convert={outfile=.svg}]{standalone}
+
+\usepackage{tikz}
+\usetikzlibrary{matrix,shapes,arrows,positioning,chains,patterns,fit,decorations.pathreplacing,calc,plotmarks}
+\input{../../tikz.tex}
+\input{preamble.tex}
+
+\begin{document}
+
+\begin{tikzpicture}[node distance = 0.25cm and 0.5cm, auto, align=center]    
+    % blocks
+    \node[] (input) {};
+    \node[block, right= of input] (G) {
+        \begin{tikzpicture}[node distance = 0.1cm and 0.5cm, auto, align=center]    
+            % blocks
+            \node[] (inL1) {};
+            \node[block, right= of inL1] (L1) {$f_{\theta}^{[0]}(x^0; u)$};
+            \node[right= of L1] (outL1) {};
+            \node[above= of L1] (inX) {};
+        
+            \node[right= of outL1] (dots) {$\cdots$};
+        
+            \node[right= of dots] (inLL) {};
+            \node[block, right= of inLL] (LL) {$f_{\theta}^{[L-1]}(x^{L-1}; u)$};
+            \node[right= of LL] (outLL) {};
+            \node[above= of LL] (inXL) {};
+            
+            
+            % Input and outputs coordinates
+            
+            % lines
+            \draw[->] (inX.center) node[above] {$u$} -- (L1.north);
+            \draw[->] (inL1.center) node[left] {$x^0$} -- (L1);
+            \draw[->] (L1.east)  --  (outL1.center) node[right] {$x^1$};
+            \draw[->] (inXL.center) node[above] {$u$} -- (LL.north);
+            \draw[->] (inLL.center) node[left] {$x^{L-1}$} -- (LL);
+            \draw[->] (LL.east) -- (outLL.center) node[right] {$x^L$};
+        
+        \end{tikzpicture} 
+    };
+    % \node at (G.north) [above] {$\mathcal{S}_{\operatorname{DEQ}}$};
+    \node[right= of G] (output) {};
+    
+    % Input and outputs coordinates
+    
+    % lines
+    \draw[->] (input)  node[left] {$u, x^0$} -- (G);
+    \draw[->] (G) -- (output) node[right] {$x^L$} ;    
+    
+\end{tikzpicture}
+
+\end{document}

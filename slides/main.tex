@@ -7,6 +7,7 @@ aspectratio=169,% for widescreen (16:9) presentations
 %handout%
 \usepackage{comment}
 \usepackage{bm}
+\usepackage{standalone}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% mode options %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -739,6 +740,22 @@ min EW of (I-W_z): -1.023        L: 40   || z^L - z^* ||^2: 2.722
     \begin{block}{}
         Neural networks that can be represented in LTI structure with nonlinear disturbances can be analyzed with well established tools from robust control.
     \end{block}
+    
+\end{frame}
+
+\section{Figures}
+\begin{frame}[allowframebreaks]{Figures}
+    \begin{figure}
+        \input{fig/export/fwd_deep.tex}
+    \end{figure}
+
+    \begin{figure}
+        \input{fig/export/fwd_tied.tex}
+    \end{figure}
+
+    \begin{figure}
+        \input{fig/export/fwd_deq.tex}
+    \end{figure}
     
 \end{frame}
 

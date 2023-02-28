@@ -1,0 +1,29 @@
+\documentclass[crop, tikz, convert={outfile=.svg}]{standalone}
+
+\usepackage{tikz}
+\usetikzlibrary{matrix,shapes,arrows,positioning,chains,patterns,fit,decorations.pathreplacing,calc,plotmarks}
+\input{../../tikz.tex}
+\input{preamble.tex}
+
+\begin{document}
+
+\begin{tikzpicture}[node distance = 0.25cm and 0.5cm, auto, align=center]    
+    % blocks
+    \node[] (input) {};
+    \node[block, right= of input] (G) {
+        $\operatorname{RootFind}\left(\underbrace{f_{\theta}(x;u)- x}_{g_{\theta}}\right)$        
+    };
+    % \node at (G.north) [above] {$\mathcal{S}_{\operatorname{DEQ}}$};
+    \node[right= of G] (output) {};
+    
+    % Input and outputs coordinates
+    
+    % lines
+    \draw[->] (input)  node[left] {$u, x^0$} -- (G);
+    \draw[->] (G) -- (output) node[right] {$x^*$} ;    
+
+    
+
+\end{tikzpicture}
+
+\end{document}
