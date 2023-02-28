@@ -46,12 +46,16 @@ class DynamicModel(metaclass=ABCMeta):
 
         x = x0
         y = []
+
+
+
         for k in range(N):
             # z = self.C_2 @ x + self.D_21 @ u[k] + self.D_22 @ w
             # w = self.Delta(z)
-            w_star = fsolve(lambda w: np.squeeze(self.Delta(self.C_2 @ x + self.D_21 @ u[k] + self.D_22 @ w) - w), x0 = 0).reshape(self.nw, 1)
-            x = self.A @ x + self.B_1 @ u[k] + self.B_2 @ w_star
-            y.append(self.C_1 @ x + self.D_11 @ u[k] + self.D_12 @ w_star)
+            u_k = np.array(u[k]).reshape(self.nu,1)
+            w_star = fsolve(lambda w: np.squeeze(self.Delta(self.C_2 @ x.reshape(self.nx,1) + self.D_21 @ u_k + self.D_22 @ w.reshape(self.nz,1)) - w.reshape(self.nz,1)), x0 = np.zeros(shape=(self.nz,1))).reshape(self.nw, 1)
+            x = self.A @ x + self.B_1 @ u_k + self.B_2 @ w_star
+            y.append(self.C_1 @ x + self.D_11 @ u_k + self.D_12 @ w_star)
             
         return y
 
